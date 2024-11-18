@@ -21,15 +21,3 @@ func NewTree(player int) Tree {
 		TreeState: Sapling,
 	}
 }
-
-var stateChars = map[TreeState]string{
-	Empty:   "⬡",
-	Sapling: ".",
-	Small:   "*",
-	Medium:  "o",
-	Large:   "O",
-}
-
-func (tree *Tree) GetChar() string {
-	return stateChars[tree.TreeState]
-}

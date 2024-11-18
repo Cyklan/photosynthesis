@@ -4,12 +4,12 @@ type Game struct {
 	Board              Grid
 	SunState           SunState
 	RemainingRounds    int
-	Players            []Player
+	Players            []*Player
 	VictoryPointTokens map[int][]VictoryPointToken
 }
 
 func NewGame() *Game {
-	players := make([]Player, 4)
+	players := make([]*Player, 4)
 	for i := range players {
 		players[i] = NewPlayer(i, i == 0)
 	}

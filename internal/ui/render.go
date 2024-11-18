@@ -13,10 +13,9 @@ import (
 func RenderGrid(game *Models.Game) string {
 	var builder strings.Builder
 
-	yellow := color.New(color.FgYellow).SprintFunc()
-
 	bgDefault := color.New(color.Reset).SprintFunc()
 	bgRed := color.New(color.BgRed).SprintFunc()
+	bgGreen := color.New(color.BgGreen).SprintFunc()
 	backgroundColor := bgDefault
 
 	for r := 0; r < game.Board.HexSize; r++ {
@@ -37,7 +36,11 @@ func RenderGrid(game *Models.Game) string {
 				backgroundColor = bgRed
 			}
 
-			builder.WriteString(backgroundColor(chars.GetTreeChar(cell.Tree)))
+			if len(cell.CanPlant) > 0 {
+				backgroundColor = bgGreen
+			}
+
+			builder.WriteString(backgroundColor(getPlayerColor(cell.Tree.Player)(chars.GetTreeChar(cell.Tree))))
 
 			backgroundColor = bgDefault
 
@@ -48,8 +51,42 @@ func RenderGrid(game *Models.Game) string {
 		builder.WriteString("\n")
 	}
 
-	builder.WriteString(yellow("\n " + chars.SunChar + " " + chars.GetSunChars(game.SunState)))
+	return builder.String()
+}
+
+func RenderGeneralData(game *Models.Game) string {
+	var builder strings.Builder
+
+	builder.WriteString("\n " + chars.SunChar + " " + chars.GetSunChars(game.SunState))
 	builder.WriteString("\n Rounds remaining: " + strconv.Itoa(game.RemainingRounds))
 
 	return builder.String()
+}
+
+func RenderPlayerData(game *Models.Game) string {
+	var builder strings.Builder
+
+	builder.WriteString("\n")
+
+	for i, player := range game.Players {
+		builder.WriteString(getPlayerColor(player.Id)(chars.SunChar + " Player " + strconv.Itoa(i) + ": " + strconv.Itoa(player.SunEnergy)))
+		builder.WriteString("\n")
+	}
+
+	return builder.String()
+}
+
+func getPlayerColor(id int) func(a ...interface{}) string {
+	switch id {
+	case 0:
+		return color.New(color.FgYellow).SprintFunc()
+	case 1:
+		return color.New(color.FgBlue).SprintFunc()
+	case 2:
+		return color.New(color.FgCyan).SprintFunc()
+	case 3:
+		return color.New(color.FgHiMagenta).SprintFunc()
+	default:
+		return color.New(color.FgWhite).SprintFunc()
+	}
 }

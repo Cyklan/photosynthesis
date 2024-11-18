@@ -1,8 +1,8 @@
+// https://www.redblobgames.com/grids/hexagons/#coordinates-axial
+
 package models
 
 import (
-	"fmt"
-
 	"github.com/adam-lavrik/go-imath/ix"
 )
 
@@ -14,6 +14,8 @@ type GridCell struct {
 	Tree       *Tree
 	Leaves     int
 	IsInShadow bool
+	// List of player Ids
+	CanPlant []int
 }
 
 type Grid struct {
@@ -60,15 +62,20 @@ func NewGrid() *Grid {
 	}
 }
 
-func (coord HexCoordinate) GetNeighbours() []HexCoordinate {
-	return []HexCoordinate{
-		{coord.Q + 1, coord.R},
-		{coord.Q + 1, coord.R - 1},
-		{coord.Q, coord.R - 1},
-		{coord.Q - 1, coord.R},
-		{coord.Q - 1, coord.R + 1},
-		{coord.Q, coord.R + 1},
+func (coord HexCoordinate) GetNeighbours(distance int) []HexCoordinate {
+	neighbours := []HexCoordinate{}
+
+	// All hail the ai overlord
+	for dq := -distance; dq <= distance; dq++ {
+		for dr := max(-distance, -dq-distance); dr <= min(distance, -dq+distance); dr++ {
+			neighbours = append(neighbours, HexCoordinate{
+				Q: coord.Q + dq,
+				R: coord.R + dr,
+			})
+		}
 	}
+
+	return neighbours
 }
 
 func (coord HexCoordinate) GetLeaves() int {
@@ -88,16 +95,52 @@ func (coord HexCoordinate) GetDistanceFromCenter() int {
 }
 
 func (grid *Grid) Update(game *Game) {
-	for coord := range grid.Grid {
-		if entry, ok := grid.Grid[coord]; ok {
-			entry.IsInShadow = false
+	grid.preUpdate(game)
+	grid.update(game)
+	grid.postUpdate(game)
+}
 
-			grid.Grid[coord] = entry
-		}
+func (grid *Grid) preUpdate(_ *Game) {
+	for coord := range grid.Grid {
+		grid.resetCell(coord)
 	}
-	
+}
+
+func (grid *Grid) update(game *Game) {
 	for coord := range grid.Grid {
 		grid.updateShadow(coord, game.SunState)
+		grid.updateCanPlant(coord)
+	}
+}
+
+func (grid *Grid) postUpdate(game *Game) {
+	for coord := range grid.Grid {
+		grid.updatePlayer(coord, game)
+	}
+}
+
+func (grid *Grid) updatePlayer(coord HexCoordinate, game *Game) {
+	cell := grid.Grid[coord]
+	if cell.Tree.TreeState == Empty || cell.Tree.TreeState == Sapling || cell.IsInShadow {
+		return
+	}
+
+	for _, player := range game.Players {
+		if player.Id != cell.Tree.Player {
+			continue
+		}
+
+		player.SunEnergy += int(cell.Tree.TreeState)
+		return
+	}
+}
+
+func (grid *Grid) resetCell(coord HexCoordinate) {
+	if entry, ok := grid.Grid[coord]; ok {
+		entry.IsInShadow = false
+		entry.CanPlant = make([]int, 0, 4)
+
+		grid.Grid[coord] = entry
 	}
 }
 
@@ -110,17 +153,34 @@ func (grid *Grid) updateShadow(coord HexCoordinate, sunState SunState) {
 	shadowLength := int(shadowCaster.Tree.TreeState)
 	shadowCoords := sunState.getShadowCoords(coord, shadowLength)
 
-	fmt.Println(shadowCoords)
-
 	for _, shadowCoord := range shadowCoords {
 		if entry, ok := grid.Grid[shadowCoord]; ok {
 			treeHeight := int(entry.Tree.TreeState)
 
-			if treeHeight < shadowLength {
+			if treeHeight <= shadowLength {
 				entry.IsInShadow = true
 			}
 
 			grid.Grid[shadowCoord] = entry
+		}
+	}
+}
+
+func (grid *Grid) updateCanPlant(coord HexCoordinate) {
+	cell := grid.Grid[coord]
+	if cell.Tree.TreeState == Empty || cell.Tree.TreeState == Sapling || cell.IsInShadow {
+		return
+	}
+
+	for _, neighbour := range coord.GetNeighbours(int(cell.Tree.TreeState)) {
+		if entry, ok := grid.Grid[neighbour]; ok {
+			if entry.IsInShadow || entry.Tree.TreeState != Empty {
+				entry.CanPlant = make([]int, 0, 4)
+			} else {
+				entry.CanPlant = append(entry.CanPlant, cell.Tree.Player)
+			}
+
+			grid.Grid[neighbour] = entry
 		}
 	}
 }

@@ -8,7 +8,7 @@ type Player struct {
 	Bought             []Tree
 }
 
-func NewPlayer(id int, isStartingPlayer bool) Player {
+func NewPlayer(id int, isStartingPlayer bool) *Player {
 	// seeds + small + medium + big
 	bought := make([]Tree, 6+8+4+2)
 	bought[0] = Tree{
@@ -40,7 +40,7 @@ func NewPlayer(id int, isStartingPlayer bool) Player {
 		Player:    id,
 	}
 
-	return Player{
+	return &Player{
 		Id:                 id,
 		Tableau:            NewTableau(),
 		VictoryPointTokens: make([]VictoryPointToken, 0, 24),
