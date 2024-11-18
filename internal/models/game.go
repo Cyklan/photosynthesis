@@ -67,7 +67,7 @@ func NewGame() *Game {
 func (game *Game) Init() {
   borderCells := game.Board.GetBorderCells()
   for i := 0; i < 2; i++ {
-    for player := 1; player <= 4; player++ {
+    for _, player := range game.Players {
       for {
         cellToPlaceOn := borderCells[rand.Intn(len(borderCells))] 
 
@@ -75,7 +75,7 @@ func (game *Game) Init() {
           continue
         }
 
-        cellToPlaceOn.Tree.Player = player
+        cellToPlaceOn.Tree.Player = player.Id
         cellToPlaceOn.Tree.TreeState = Small 
 
         break
