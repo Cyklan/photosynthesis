@@ -1,5 +1,9 @@
 package models
 
+import (
+	"math/rand"
+)
+
 type Game struct {
 	Board              Grid
 	SunState           SunState
@@ -58,6 +62,26 @@ func NewGame() *Game {
 		Players:            players,
 		VictoryPointTokens: tokens,
 	}
+}
+
+func (game *Game) Init() {
+  borderCells := game.Board.GetBorderCells()
+  for i := 0; i < 2; i++ {
+    for player := 1; player <= 4; player++ {
+      for {
+        cellToPlaceOn := borderCells[rand.Intn(len(borderCells))] 
+
+        if cellToPlaceOn.Tree.TreeState != Empty {
+          continue
+        }
+
+        cellToPlaceOn.Tree.Player = player
+        cellToPlaceOn.Tree.TreeState = Small 
+
+        break
+      }
+    }
+  }
 }
 
 func (game *Game) Update() {
