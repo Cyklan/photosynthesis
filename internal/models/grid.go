@@ -97,14 +97,14 @@ func (coord HexCoordinate) GetDistanceFromCenter() int {
 }
 
 func (grid *Grid) GetBorderCells() []*GridCell {
-  borderCells := []*GridCell{} 
-  for coord, cell := range grid.Grid {
-    if coord.GetDistanceFromCenter() == 3 {
-      borderCells = append(borderCells, &cell)
-    } 
-  }
+	borderCells := []*GridCell{}
+	for coord, cell := range grid.Grid {
+		if coord.GetDistanceFromCenter() == 3 {
+			borderCells = append(borderCells, &cell)
+		}
+	}
 
-  return borderCells
+	return borderCells
 }
 
 func (grid *Grid) Update(game *Game) {
@@ -144,9 +144,9 @@ func (grid *Grid) updatePlayer(coord HexCoordinate, game *Game) {
 		}
 
 		player.SunEnergy += int(cell.Tree.TreeState)
-        if player.SunEnergy < 20 {
-          player.SunEnergy = 20
-        }
+		if player.SunEnergy < 20 {
+			player.SunEnergy = 20
+		}
 
 		return
 	}
@@ -203,35 +203,34 @@ func (grid *Grid) updateCanPlant(coord HexCoordinate) {
 }
 
 func (grid *Grid) GetPlantableCells(playerId int) []*GridCell {
-  cells := []*GridCell{}
-  for _ , cell := range grid.Grid {
-    if slices.Contains(cell.CanPlant, playerId) {
-      cells = append(cells, &cell) 
-    }
-  }
+	cells := []*GridCell{}
+	for _, cell := range grid.Grid {
+		if slices.Contains(cell.CanPlant, playerId) {
+			cells = append(cells, &cell)
+		}
+	}
 
-  return cells 
+	return cells
 }
 
 func (grid *Grid) GetPlayerTrees(playerId int) []*GridCell {
-  cells := []*GridCell{}
-  for _, cell := range grid.Grid {
-    if cell.Tree.Player == playerId {
-      cells = append(cells, &cell)
-    }
-  }
+	cells := []*GridCell{}
+	for _, cell := range grid.Grid {
+		if cell.Tree.Player == playerId {
+			cells = append(cells, &cell)
+		}
+	}
 
-  return cells
-} 
-
-func (grid *Grid) GetScorableTrees(playerId int) []*GridCell {
-  cells := []*GridCell{}
-  for _, cell := range grid.GetPlayerTrees(playerId) {
-     if cell.Tree.TreeState == Large {
-       cells = append(cells, cell)
-     }
-  }
-  
-  return cells
+	return cells
 }
 
+func (grid *Grid) GetScorableTrees(playerId int) []*GridCell {
+	cells := []*GridCell{}
+	for _, cell := range grid.GetPlayerTrees(playerId) {
+		if cell.Tree.TreeState == Large {
+			cells = append(cells, cell)
+		}
+	}
+
+	return cells
+}

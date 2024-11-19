@@ -5,7 +5,7 @@ import (
 )
 
 var treeChars = map[models.TreeState]string{
-	models.Empty: 	"⬡",
+	models.Empty:   "⬡",
 	models.Sapling: "P",
 	models.Small:   "S",
 	models.Medium:  "M",

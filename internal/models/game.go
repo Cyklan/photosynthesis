@@ -5,14 +5,14 @@ import (
 	"os"
 )
 
-const initialSunState SunState = TopRight 
+const initialSunState SunState = TopRight
 
 type Game struct {
 	Board              Grid
 	SunState           SunState
 	RemainingRounds    int
 	Players            []*Player
-    ActivePlayer       *Player
+	ActivePlayer       *Player
 	VictoryPointTokens map[int][]VictoryPointToken
 }
 
@@ -65,28 +65,28 @@ func NewGame() *Game {
 		RemainingRounds:    4,
 		Players:            players,
 		VictoryPointTokens: tokens,
-        ActivePlayer:       players[0],
+		ActivePlayer:       players[0],
 	}
 }
 
 func (game *Game) Init() {
-  borderCells := game.Board.GetBorderCells()
-  for i := 0; i < 2; i++ {
-    for _, player := range game.Players {
-      for {
-        cellToPlaceOn := borderCells[rand.Intn(len(borderCells))] 
+	borderCells := game.Board.GetBorderCells()
+	for i := 0; i < 2; i++ {
+		for _, player := range game.Players {
+			for {
+				cellToPlaceOn := borderCells[rand.Intn(len(borderCells))]
 
-        if cellToPlaceOn.Tree.TreeState != Empty {
-          continue
-        }
+				if cellToPlaceOn.Tree.TreeState != Empty {
+					continue
+				}
 
-        cellToPlaceOn.Tree.Player = player.Id
-        cellToPlaceOn.Tree.TreeState = Small 
+				cellToPlaceOn.Tree.Player = player.Id
+				cellToPlaceOn.Tree.TreeState = Small
 
-        break
-      }
-    }
-  }
+				break
+			}
+		}
+	}
 }
 
 func (game *Game) Update() {
@@ -94,40 +94,40 @@ func (game *Game) Update() {
 }
 
 func (game *Game) NextTurn() {
-  game.advancePlayer()
-  game.advanceSunPosition()
-  game.advanceTurn()
+	game.advancePlayer()
+	game.advanceSunPosition()
+	game.advanceTurn()
 
-  game.checkForGameOver()
+	game.checkForGameOver()
 }
 
 func (game *Game) advancePlayer() {
-  nextPlayerIndex := (game.ActivePlayer.Id + 1) % len(game.Players)
-  game.ActivePlayer = game.Players[nextPlayerIndex]
+	nextPlayerIndex := (game.ActivePlayer.Id + 1) % len(game.Players)
+	game.ActivePlayer = game.Players[nextPlayerIndex]
 }
 
 func (game *Game) advanceSunPosition() {
-  if (game.ActivePlayer.Id != game.Players[0].Id) {
-    return
-  }
+	if game.ActivePlayer.Id != game.Players[0].Id {
+		return
+	}
 
-  game.SunState += 1
-  if game.SunState == SunState(SunStateCount) {
-    game.SunState = initialSunState
-  }
+	game.SunState += 1
+	if game.SunState == SunState(SunStateCount) {
+		game.SunState = initialSunState
+	}
 }
 
 func (game *Game) advanceTurn() {
-  if game.SunState != initialSunState {
-    return
-  } 
-  
-  game.RemainingRounds -= 1
+	if game.SunState != initialSunState {
+		return
+	}
+
+	game.RemainingRounds -= 1
 }
 
 func (game *Game) checkForGameOver() {
-  if (game.RemainingRounds == 0) {
-    // todo: calculate and print out winner
-    os.Exit(0)
-  }
+	if game.RemainingRounds == 0 {
+		// todo: calculate and print out winner
+		os.Exit(0)
+	}
 }

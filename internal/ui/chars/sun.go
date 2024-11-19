@@ -7,12 +7,12 @@ import (
 const SunChar = "🌞"
 
 var sunChars = map[models.SunState]string{
-	models.TopLeft: "↘",
-	models.TopRight: "↙",
-	models.Right: "←",
+	models.TopLeft:     "↘",
+	models.TopRight:    "↙",
+	models.Right:       "←",
 	models.BottomRight: "↖",
-	models.BottomLeft: "↗",
-	models.Left: "→",
+	models.BottomLeft:  "↗",
+	models.Left:        "→",
 }
 
 func GetSunChars(state models.SunState) string {

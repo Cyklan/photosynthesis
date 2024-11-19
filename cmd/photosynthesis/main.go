@@ -10,7 +10,7 @@ import (
 func main() {
 	game := models.NewGame()
 
-    game.Init()
+	game.Init()
 
 	game.SunState = models.TopLeft
 	game.Update()
