@@ -144,6 +144,10 @@ func (grid *Grid) updatePlayer(coord HexCoordinate, game *Game) {
 		}
 
 		player.SunEnergy += int(cell.Tree.TreeState)
+        if player.SunEnergy < 20 {
+          player.SunEnergy = 20
+        }
+
 		return
 	}
 }
