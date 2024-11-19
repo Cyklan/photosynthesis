@@ -20,6 +20,8 @@ var directions = map[SunState]HexCoordinate{
 	TopLeft:     {Q: 0, R: 1},
 }
 
+var SunStateCount = len(directions)
+
 func (sunState SunState) getShadowCoords(origin HexCoordinate, treeHeight int) []HexCoordinate {
 	shadowCoords := make([]HexCoordinate, 0, treeHeight)
 	direction := directions[sunState]

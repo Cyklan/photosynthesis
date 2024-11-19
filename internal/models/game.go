@@ -2,13 +2,17 @@ package models
 
 import (
 	"math/rand"
+	"os"
 )
+
+const initialSunState SunState = TopRight 
 
 type Game struct {
 	Board              Grid
 	SunState           SunState
 	RemainingRounds    int
 	Players            []*Player
+    ActivePlayer       *Player
 	VictoryPointTokens map[int][]VictoryPointToken
 }
 
@@ -57,10 +61,11 @@ func NewGame() *Game {
 
 	return &Game{
 		Board:              *NewGrid(),
-		SunState:           TopRight,
+		SunState:           initialSunState,
 		RemainingRounds:    4,
 		Players:            players,
 		VictoryPointTokens: tokens,
+        ActivePlayer:       players[0],
 	}
 }
 
@@ -86,4 +91,43 @@ func (game *Game) Init() {
 
 func (game *Game) Update() {
 	game.Board.Update(game)
+}
+
+func (game *Game) NextTurn() {
+  game.advancePlayer()
+  game.advanceSunPosition()
+  game.advanceTurn()
+
+  game.checkForGameOver()
+}
+
+func (game *Game) advancePlayer() {
+  nextPlayerIndex := (game.ActivePlayer.Id + 1) % len(game.Players)
+  game.ActivePlayer = game.Players[nextPlayerIndex]
+}
+
+func (game *Game) advanceSunPosition() {
+  if (game.ActivePlayer.Id != game.Players[0].Id) {
+    return
+  }
+
+  game.SunState += 1
+  if game.SunState == SunState(SunStateCount) {
+    game.SunState = initialSunState
+  }
+}
+
+func (game *Game) advanceTurn() {
+  if game.SunState != initialSunState {
+    return
+  } 
+  
+  game.RemainingRounds -= 1
+}
+
+func (game *Game) checkForGameOver() {
+  if (game.RemainingRounds == 0) {
+    // todo: calculate and print out winner
+    os.Exit(0)
+  }
 }
